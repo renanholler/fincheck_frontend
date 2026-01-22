@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   --color-gray-50: #f8f9fa;
@@ -143,4 +143,31 @@
   --color-orange-700: #f76707;
   --color-orange-800: #e8590c;
   --color-orange-900: #d9480f;
+
+  --animate-slide-down-and-fade: slide-down-and-fade 400ms
+    cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slide-up-and-fade: slide-up-and-fade 400ms
+    cubic-bezier(0.16, 1, 0.3, 1);
+
+  @keyframes slide-down-and-fade {
+    from {
+      opacity: 0;
+      transform: translateY(-2px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slide-up-and-fade {
+    from {
+      opacity: 0;
+      transform: translateY(2px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }

@@ -1,19 +1,19 @@
-import { TransactionsIcon } from "../../../../components/icons/TransactionsIcon";
-import { ChevronDownIcon } from "@radix-ui/react-icons";
-import { FilterIcon } from "../../../../components/icons/FilterIcon";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { MONTHS } from "../../../../../app/config/constants";
-import { SliderOption } from "./SliderOption";
-import { SliderNavigation } from "./SliderNavigation";
-import { formatCurrency } from "../../../../../app/utils/formatCurrency";
-import { CategoryIcon } from "../../../../components/icons/categories/CategoryIcon";
-import { useTransactionsController } from "./useTransactionsController";
-import { cn } from "../../../../../app/utils/cn";
-import { Spinner } from "../../../../components/Spinner";
-import EmptyStateImage from "../../../../../assets/empty-state.svg";
+import { FilterIcon } from '../../../../components/icons/FilterIcon';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { MONTHS } from '../../../../../app/config/constants';
+import { SliderOption } from './SliderOption';
+import { SliderNavigation } from './SliderNavigation';
+import { formatCurrency } from '../../../../../app/utils/formatCurrency';
+import { CategoryIcon } from '../../../../components/icons/categories/CategoryIcon';
+import { useTransactionsController } from './useTransactionsController';
+import { cn } from '../../../../../app/utils/cn';
+import { Spinner } from '../../../../components/Spinner';
+import EmptyStateImage from '../../../../../assets/empty-state.svg';
+import { TransactionTypeDropdown } from './TransactionTypeDropdown';
 
 export function Transactions() {
-  const { areValuesVisible, isInitialLoading, transactions, isLoading } = useTransactionsController();
+  const { areValuesVisible, isInitialLoading, transactions, isLoading } =
+    useTransactionsController();
 
   const hasTransactions = transactions.length > 0;
 
@@ -29,13 +29,7 @@ export function Transactions() {
         <>
           <header>
             <div className="flex items-center justify-between">
-              <button className="flex items-center gap-2">
-                <TransactionsIcon />
-                <span className="text-sm text-gray-800 tracking-[-0.5px] font-medium">
-                  Transações
-                </span>
-                <ChevronDownIcon className="text-gray-900" />
-              </button>
+              <TransactionTypeDropdown />
               <button>
                 <FilterIcon />
               </button>
@@ -65,12 +59,10 @@ export function Transactions() {
                 <Spinner className="w-10 h-10" />
               </div>
             )}
-            {(!hasTransactions && !isLoading) && (
+            {!hasTransactions && !isLoading && (
               <div className="flex flex-col items-center justify-center h-full">
-                <img src={EmptyStateImage} alt="Empty State"/>
-                <p className="text-gray-700">
-                  Nenhuma transação encontrada
-                </p>
+                <img src={EmptyStateImage} alt="Empty State" />
+                <p className="text-gray-700">Nenhuma transação encontrada</p>
               </div>
             )}
 
@@ -88,8 +80,8 @@ export function Transactions() {
                   </div>
                   <span
                     className={cn(
-                      "text-red-800 tracking-[-0.5px] font-medium",
-                      !areValuesVisible && "blur-sm"
+                      'text-red-800 tracking-[-0.5px] font-medium',
+                      !areValuesVisible && 'blur-sm',
                     )}
                   >
                     {formatCurrency(100)}
