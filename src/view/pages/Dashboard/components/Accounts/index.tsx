@@ -1,13 +1,13 @@
-import { EyeIcon } from "../../../../components/icons/EyeIcon";
-import { AccountCard } from "../Accounts/AccountCard";
-import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/swiper.css";
-import { SliderNavigation } from "./SliderNavigation";
-import { useAccountsController } from "./useAccountsController";
-import { formatCurrency } from "../../../../../app/utils/formatCurrency";
-import { cn } from "../../../../../app/utils/cn";
-import { Spinner } from "../../../../components/Spinner";
-import { PlusIcon } from "@radix-ui/react-icons";
+import { EyeIcon } from '../../../../components/icons/EyeIcon';
+import { AccountCard } from '../Accounts/AccountCard';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/swiper.css';
+import { SliderNavigation } from './SliderNavigation';
+import { useAccountsController } from './useAccountsController';
+import { formatCurrency } from '../../../../../app/utils/formatCurrency';
+import { cn } from '../../../../../app/utils/cn';
+import { Spinner } from '../../../../components/Spinner';
+import { PlusIcon } from '@radix-ui/react-icons';
 
 export function Accounts() {
   const {
@@ -18,6 +18,8 @@ export function Accounts() {
     toggleValuesVisibility,
     isLoading,
     accounts,
+    openNewAccountModal,
+    currentBalance,
   } = useAccountsController();
   return (
     <div className="bg-teal-900 rounded-2xl w-full h-full lg:p-10 px-4 py-8 flex flex-col">
@@ -36,14 +38,14 @@ export function Accounts() {
             <div className="flex items-center gap-2">
               <strong
                 className={cn(
-                  "text-2xl tracking-[-1px] text-white",
-                  !areValuesVisible && "blur-md"
+                  'text-2xl tracking-[-1px] text-white',
+                  !areValuesVisible && 'blur-md',
                 )}
               >
-                {formatCurrency(0)}
+                {formatCurrency(currentBalance ?? 0)}
               </strong>
               <button
-                className="w-8 h-8 flex items-center justify-center cursor-pointer"
+                className="w-8 h-8 flex items-center justify-center"
                 onClick={toggleValuesVisibility}
               >
                 <EyeIcon open={!areValuesVisible} />
@@ -59,7 +61,10 @@ export function Accounts() {
                   </strong>
                 </div>
 
-                <button className="mt-4 h-52 rounded-2xl border-2 border-dashed border-teal-600 flex flex-col items-center justify-center gap-4 text-white cursor-pointer">
+                <button
+                  onClick={openNewAccountModal}
+                  className="mt-4 h-52 rounded-2xl border-2 border-dashed border-teal-600 flex flex-col items-center justify-center gap-4 text-white"
+                >
                   <div className="w-11 h-11 rounded-full border-2 border-dashed border-white flex flex-col justify-center items-center">
                     <PlusIcon />
                   </div>
@@ -95,30 +100,11 @@ export function Accounts() {
                     />
                   </div>
 
-                  <SwiperSlide>
-                    <AccountCard
-                      color="#7950f2"
-                      name="Nubank"
-                      balance={123}
-                      type="CHECKING"
-                    />
-                  </SwiperSlide>
-                  <SwiperSlide>
-                    <AccountCard
-                      color="#333"
-                      name="XP"
-                      balance={123}
-                      type="INVESTMENT"
-                    />
-                  </SwiperSlide>
-                  <SwiperSlide>
-                    <AccountCard
-                      color="#33f"
-                      name="Ailos"
-                      balance={123}
-                      type="CASH"
-                    />
-                  </SwiperSlide>
+                  {accounts.map((account) => (
+                    <SwiperSlide key={account.id}>
+                      <AccountCard data={account} />
+                    </SwiperSlide>
+                  ))}
                 </Swiper>
               </div>
             )}

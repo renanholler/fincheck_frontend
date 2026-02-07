@@ -10,10 +10,27 @@ import { cn } from '../../../../../app/utils/cn';
 import { Spinner } from '../../../../components/Spinner';
 import EmptyStateImage from '../../../../../assets/empty-state.svg';
 import { TransactionTypeDropdown } from './TransactionTypeDropdown';
+import { FiltersModal } from './FiltersModal';
+import { formatDate } from '../../../../../app/utils/formatDate';
+import { EditTransactionModal } from '../../modals/EditTransactionModal';
 
 export function Transactions() {
-  const { areValuesVisible, isInitialLoading, transactions, isLoading } =
-    useTransactionsController();
+  const {
+    areValuesVisible,
+    isInitialLoading,
+    transactions,
+    isLoading,
+    isFiltersModalOpen,
+    handleOpenFiltersModal,
+    handleCloseFiltersModal,
+    filters,
+    handleChangeFilters,
+    handleApplyFilters,
+    isEditTransactionModalOpen,
+    transactionBeingEdited,
+    handleOpenEditTransactionModal,
+    handleCloseEditTransactionModal,
+  } = useTransactionsController();
 
   const hasTransactions = transactions.length > 0;
 
@@ -27,16 +44,31 @@ export function Transactions() {
 
       {!isInitialLoading && (
         <>
+          <FiltersModal
+            open={isFiltersModalOpen}
+            onClose={handleCloseFiltersModal}
+            onApplyFilters={handleApplyFilters}
+          />
           <header>
             <div className="flex items-center justify-between">
-              <TransactionTypeDropdown />
-              <button>
+              <TransactionTypeDropdown
+                onSelect={handleChangeFilters('type')}
+                selectedType={filters.type}
+              />
+              <button onClick={handleOpenFiltersModal}>
                 <FilterIcon />
               </button>
             </div>
 
             <div className="mt-6 relative">
-              <Swiper slidesPerView={3} centeredSlides>
+              <Swiper
+                slidesPerView={3}
+                centeredSlides
+                initialSlide={filters.month}
+                onSlideChange={(swiper) => {
+                  handleChangeFilters('month')(swiper.realIndex);
+                }}
+              >
                 <SliderNavigation />
                 {MONTHS.map((month, index) => (
                   <SwiperSlide key={month}>
@@ -68,137 +100,50 @@ export function Transactions() {
 
             {hasTransactions && (
               <>
-                <div className="bg-white p-4 rounded-2xl flex items-center justify-between gap-4">
-                  <div className="flex-1 flex items-center gap-3">
-                    <CategoryIcon type="expense" />
-                    <div>
-                      <strong className="font-bold tracking-[-0.5px] block">
-                        Almoço
-                      </strong>
-                      <span className="text-sm text-gray-600">06/06/2026</span>
-                    </div>
-                  </div>
-                  <span
-                    className={cn(
-                      'text-red-800 tracking-[-0.5px] font-medium',
-                      !areValuesVisible && 'blur-sm',
-                    )}
+                {transactionBeingEdited && (
+                  <EditTransactionModal
+                    isOpen={isEditTransactionModalOpen}
+                    onClose={handleCloseEditTransactionModal}
+                    transaction={transactionBeingEdited}
+                  />
+                )}
+                {transactions.map((transaction) => (
+                  <div
+                    key={transaction.id}
+                    className="bg-white p-4 rounded-2xl flex items-center justify-between gap-4 cursor-pointer"
+                    role="button"
+                    onClick={() => handleOpenEditTransactionModal(transaction)}
                   >
-                    {formatCurrency(100)}
-                  </span>
-                </div>
-                <div className="bg-white p-4 rounded-2xl flex items-center justify-between gap-4">
-                  <div className="flex-1 flex items-center gap-3">
-                    <CategoryIcon type="income" />
-                    <div>
-                      <strong className="font-bold tracking-[-0.5px] block">
-                        Almoço
-                      </strong>
-                      <span className="text-sm text-gray-600">06/06/2026</span>
+                    <div className="flex-1 flex items-center gap-3">
+                      <CategoryIcon
+                        type={
+                          transaction.type === 'INCOME' ? 'income' : 'expense'
+                        }
+                        category={transaction.category?.icon}
+                      />
+                      <div>
+                        <strong className="font-bold tracking-[-0.5px] block">
+                          {transaction.name}
+                        </strong>
+                        <span className="text-sm text-gray-600">
+                          {formatDate(new Date(transaction.date))}
+                        </span>
+                      </div>
                     </div>
+                    <span
+                      className={cn(
+                        'tracking-[-0.5px] font-medium',
+                        transaction.type === 'INCOME'
+                          ? 'text-green-800'
+                          : 'text-red-800',
+                        !areValuesVisible && 'blur-sm',
+                      )}
+                    >
+                      {transaction.type === 'INCOME' ? '+ ' : '- '}
+                      {formatCurrency(transaction.value)}
+                    </span>
                   </div>
-                  <span className="text-green-800 tracking-[-0.5px] font-medium">
-                    {formatCurrency(100)}
-                  </span>
-                </div>
-                <div className="bg-white p-4 rounded-2xl flex items-center justify-between gap-4">
-                  <div className="flex-1 flex items-center gap-3">
-                    <CategoryIcon type="expense" />
-                    <div>
-                      <strong className="font-bold tracking-[-0.5px] block">
-                        Almoço
-                      </strong>
-                      <span className="text-sm text-gray-600">06/06/2026</span>
-                    </div>
-                  </div>
-                  <span className="text-red-800 tracking-[-0.5px] font-medium">
-                    {formatCurrency(100)}
-                  </span>
-                </div>
-                <div className="bg-white p-4 rounded-2xl flex items-center justify-between gap-4">
-                  <div className="flex-1 flex items-center gap-3">
-                    <CategoryIcon type="income" />
-                    <div>
-                      <strong className="font-bold tracking-[-0.5px] block">
-                        Almoço
-                      </strong>
-                      <span className="text-sm text-gray-600">06/06/2026</span>
-                    </div>
-                  </div>
-                  <span className="text-green-800 tracking-[-0.5px] font-medium">
-                    {formatCurrency(100)}
-                  </span>
-                </div>
-                <div className="bg-white p-4 rounded-2xl flex items-center justify-between gap-4">
-                  <div className="flex-1 flex items-center gap-3">
-                    <CategoryIcon type="expense" />
-                    <div>
-                      <strong className="font-bold tracking-[-0.5px] block">
-                        Almoço
-                      </strong>
-                      <span className="text-sm text-gray-600">06/06/2026</span>
-                    </div>
-                  </div>
-                  <span className="text-red-800 tracking-[-0.5px] font-medium">
-                    {formatCurrency(100)}
-                  </span>
-                </div>
-                <div className="bg-white p-4 rounded-2xl flex items-center justify-between gap-4">
-                  <div className="flex-1 flex items-center gap-3">
-                    <CategoryIcon type="income" />
-                    <div>
-                      <strong className="font-bold tracking-[-0.5px] block">
-                        Almoço
-                      </strong>
-                      <span className="text-sm text-gray-600">06/06/2026</span>
-                    </div>
-                  </div>
-                  <span className="text-green-800 tracking-[-0.5px] font-medium">
-                    {formatCurrency(100)}
-                  </span>
-                </div>
-                <div className="bg-white p-4 rounded-2xl flex items-center justify-between gap-4">
-                  <div className="flex-1 flex items-center gap-3">
-                    <CategoryIcon type="income" />
-                    <div>
-                      <strong className="font-bold tracking-[-0.5px] block">
-                        Almoço
-                      </strong>
-                      <span className="text-sm text-gray-600">06/06/2026</span>
-                    </div>
-                  </div>
-                  <span className="text-green-800 tracking-[-0.5px] font-medium">
-                    {formatCurrency(100)}
-                  </span>
-                </div>
-                <div className="bg-white p-4 rounded-2xl flex items-center justify-between gap-4">
-                  <div className="flex-1 flex items-center gap-3">
-                    <CategoryIcon type="income" />
-                    <div>
-                      <strong className="font-bold tracking-[-0.5px] block">
-                        Almoço
-                      </strong>
-                      <span className="text-sm text-gray-600">06/06/2026</span>
-                    </div>
-                  </div>
-                  <span className="text-green-800 tracking-[-0.5px] font-medium">
-                    {formatCurrency(100)}
-                  </span>
-                </div>
-                <div className="bg-white p-4 rounded-2xl flex items-center justify-between gap-4">
-                  <div className="flex-1 flex items-center gap-3">
-                    <CategoryIcon type="income" />
-                    <div>
-                      <strong className="font-bold tracking-[-0.5px] block">
-                        Almoço
-                      </strong>
-                      <span className="text-sm text-gray-600">06/06/2026</span>
-                    </div>
-                  </div>
-                  <span className="text-green-800 tracking-[-0.5px] font-medium">
-                    {formatCurrency(100)}
-                  </span>
-                </div>
+                ))}
               </>
             )}
           </div>

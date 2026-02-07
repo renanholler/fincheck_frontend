@@ -1,14 +1,16 @@
-import { createContext, useCallback, useEffect, useState } from "react";
-import { localStorageKeys } from "../config/localStorageKeys";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { usersService } from "../services/usersService";
-import toast from "react-hot-toast";
-import { LaunchScreen } from "../../view/components/LaunchScreen";
+import { createContext, useCallback, useEffect, useState } from 'react';
+import { localStorageKeys } from '../config/localStorageKeys';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { usersService } from '../services/usersService';
+import toast from 'react-hot-toast';
+import { LaunchScreen } from '../../view/components/LaunchScreen';
+import type { User } from '../entities/User';
 
 interface AuthContextValue {
   signedIn: boolean;
   signin: (accessToken: string) => void;
   signout: () => void;
+  user: User | undefined;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -17,13 +19,13 @@ export const AuthContext = createContext({} as AuthContextValue);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [signedIn, setSignedIn] = useState<boolean>(() => {
     const storedAccessToken = localStorage.getItem(
-      localStorageKeys.ACCESS_TOKEN
+      localStorageKeys.ACCESS_TOKEN,
     );
     return !!storedAccessToken;
   });
 
-  const { isError, isFetching, isSuccess } = useQuery({
-    queryKey: ["users", "me"],
+  const { isError, isFetching, isSuccess, data } = useQuery({
+    queryKey: ['users', 'me'],
     queryFn: () => usersService.me(),
     enabled: signedIn,
     staleTime: Infinity,
@@ -39,12 +41,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signout = useCallback(() => {
     localStorage.removeItem(localStorageKeys.ACCESS_TOKEN);
     setSignedIn(false);
-    queryClient.removeQueries({ queryKey: ["users", "me"] });
+    queryClient.removeQueries({ queryKey: ['users', 'me'] });
   }, [queryClient]);
 
   useEffect(() => {
     if (isError) {
-      toast.error("Sua sessão expirou");
+      toast.error('Sua sessão expirou');
       signout();
     }
   }, [isError, signout]);
@@ -55,6 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signedIn: isSuccess && signedIn,
         signin,
         signout,
+        user: data,
       }}
     >
       <LaunchScreen isLoading={isFetching} />
